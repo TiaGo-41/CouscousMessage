@@ -1,6 +1,9 @@
-// conversations.js
+// ---------------------------------------------------------
+//  conversations.js — version améliorée avec auto-complétion
+// ---------------------------------------------------------
 
 let currentUser = null;
+let usersCache = {}; // pour éviter de recharger les users
 
 auth.onAuthStateChanged(async user => {
   if (!user) {
@@ -8,99 +11,180 @@ auth.onAuthStateChanged(async user => {
     return;
   }
   currentUser = user;
-  initPage();
+  loadConversations();
 });
 
-function initPage() {
-  document.getElementById('logout-btn').onclick = () => auth.signOut();
-  document.getElementById('new-mp-btn').onclick = createMp;
-  document.getElementById('create-group-btn').onclick = createGroup;
-
-  loadConversations();
-}
-
+// ---------------------------------------------------------
+// 1. Charger les conversations existantes
+// ---------------------------------------------------------
 async function loadConversations() {
-  const container = document.getElementById('conversations-list');
+  const list = document.getElementById("conversations-list");
+  list.innerHTML = "";
 
-  db.collection('conversations')
-    .where('members', 'array-contains', currentUser.uid)
-    .onSnapshot(snapshot => {
-      container.innerHTML = '';
+  db.collection("conversations")
+    .where("members", "array-contains", currentUser.uid)
+    .onSnapshot(async snapshot => {
+      list.innerHTML = "";
 
-      snapshot.forEach(doc => {
-        const data = doc.data();
+      for (const doc of snapshot.docs) {
+        const conv = doc.data();
+        const div = document.createElement("div");
+        div.className = "conversation-item";
 
-        // Si la conv est cachée pour moi → on l’ignore
-        if ((data.hiddenFor || []).includes(currentUser.uid)) return;
+        const avatar = document.createElement("div");
+        avatar.className = "conversation-avatar";
 
-        const div = document.createElement('div');
-        div.className = 'conversation-item';
+        const main = document.createElement("div");
+        main.className = "conversation-main";
 
-        let title = '';
-        if (data.type === 'mp') {
-          title = "MP avec " + getOtherMemberName(data.members);
+        if (conv.type === "group") {
+          avatar.textContent = (conv.groupName || "G")[0].toUpperCase();
+          main.innerHTML = `
+            <span>${conv.groupName}</span>
+            <span>${conv.members.length} membres</span>
+          `;
         } else {
-          title = "Groupe : " + (data.groupName || "Sans nom");
+          const other = conv.members.find(m => m !== currentUser.uid);
+          const userData = await getUser(other);
+          avatar.textContent = (userData.name || "U")[0].toUpperCase();
+          main.innerHTML = `
+            <span>${userData.name}</span>
+            <span>Message privé</span>
+          `;
         }
 
-        div.textContent = title;
+        div.appendChild(avatar);
+        div.appendChild(main);
+
         div.onclick = () => {
           window.location.href = `chat.html?id=${doc.id}`;
         };
 
-        container.appendChild(div);
-      });
+        list.appendChild(div);
+      }
     });
 }
 
-function getOtherMemberName(members) {
-  const other = members.find(m => m !== currentUser.uid);
-  return other ? other : "Inconnu";
+// ---------------------------------------------------------
+// 2. Récupérer un utilisateur (avec cache)
+// ---------------------------------------------------------
+async function getUser(uid) {
+  if (usersCache[uid]) return usersCache[uid];
+  const doc = await db.collection("users").doc(uid).get();
+  const data = doc.data() || {};
+  usersCache[uid] = data;
+  return data;
 }
 
-async function createMp() {
-  const otherId = document.getElementById('new-member-id').value.trim();
-  if (!otherId) {
-    alert("Entre l'ID de l'autre utilisateur.");
-    return;
-  }
-  if (otherId === currentUser.uid) {
-    alert("Tu ne peux pas créer un MP avec toi-même.");
-    return;
-  }
+// ---------------------------------------------------------
+// 3. POPUP MP — auto-complétion
+// ---------------------------------------------------------
+document.getElementById("new-mp-btn").onclick = () => {
+  document.getElementById("popup-mp").style.display = "flex";
+};
 
-  const convRef = await db.collection('conversations').add({
-    type: 'mp',
-    members: [currentUser.uid, otherId],
-    groupName: null,
+document.getElementById("close-mp").onclick = () => {
+  document.getElementById("popup-mp").style.display = "none";
+};
+
+document.getElementById("mp-search").addEventListener("input", async e => {
+  const search = e.target.value.toLowerCase();
+  const results = document.getElementById("mp-results");
+  results.innerHTML = "";
+
+  if (search.length < 1) return;
+
+  const snap = await db.collection("users").get();
+
+  snap.forEach(doc => {
+    const data = doc.data();
+    if (doc.id === currentUser.uid) return;
+    if ((data.name || "").toLowerCase().includes(search)) {
+      const btn = document.createElement("button");
+      btn.className = "btn btn-full";
+      btn.textContent = data.name;
+      btn.onclick = () => createMP(doc.id);
+      results.appendChild(btn);
+    }
+  });
+});
+
+async function createMP(otherUid) {
+  const conv = await db.collection("conversations").add({
+    type: "mp",
+    members: [currentUser.uid, otherUid],
     customNames: {},
     hiddenFor: []
   });
 
-  window.location.href = `chat.html?id=${convRef.id}`;
+  window.location.href = `chat.html?id=${conv.id}`;
 }
 
-async function createGroup() {
-  const name = document.getElementById('group-name').value.trim();
-  const membersRaw = document.getElementById('group-members').value.trim();
+// ---------------------------------------------------------
+// 4. POPUP GROUPE — auto-complétion + multi-sélection
+// ---------------------------------------------------------
+let selectedMembers = [];
 
-  if (!name || !membersRaw) {
-    alert("Nom + membres obligatoires");
-    return;
-  }
+document.getElementById("create-group-btn").onclick = () => {
+  selectedMembers = [currentUser.uid];
+  updateSelectedMembers();
+  document.getElementById("popup-group").style.display = "flex";
+};
 
-  const members = membersRaw.split(",").map(m => m.trim());
-  if (!members.includes(currentUser.uid)) {
-    members.push(currentUser.uid);
-  }
+document.getElementById("close-group").onclick = () => {
+  document.getElementById("popup-group").style.display = "none";
+};
 
-  const convRef = await db.collection('conversations').add({
+document.getElementById("group-search").addEventListener("input", async e => {
+  const search = e.target.value.toLowerCase();
+  const results = document.getElementById("group-results");
+  results.innerHTML = "";
+
+  if (search.length < 1) return;
+
+  const snap = await db.collection("users").get();
+
+  snap.forEach(doc => {
+    const data = doc.data();
+    if ((data.name || "").toLowerCase().includes(search)) {
+      if (!selectedMembers.includes(doc.id)) {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-full";
+        btn.textContent = data.name;
+        btn.onclick = () => {
+          selectedMembers.push(doc.id);
+          updateSelectedMembers();
+        };
+        results.appendChild(btn);
+      }
+    }
+  });
+});
+
+function updateSelectedMembers() {
+  const div = document.getElementById("group-selected");
+  div.innerHTML = "";
+
+  selectedMembers.forEach(async uid => {
+    const user = await getUser(uid);
+    const tag = document.createElement("div");
+    tag.className = "btn";
+    tag.textContent = user.name;
+    div.appendChild(tag);
+  });
+}
+
+document.getElementById("create-group-final").onclick = async () => {
+  const name = document.getElementById("group-name-input").value.trim();
+  if (!name) return alert("Nom du groupe obligatoire");
+
+  const conv = await db.collection("conversations").add({
     type: "group",
-    members,
     groupName: name,
+    members: selectedMembers,
     customNames: {},
     hiddenFor: []
   });
 
-  window.location.href = `chat.html?id=${convRef.id}`;
-}
+  window.location.href = `chat.html?id=${conv.id}`;
+};

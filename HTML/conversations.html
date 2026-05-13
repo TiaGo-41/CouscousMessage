@@ -25,6 +25,35 @@
         <button id="create-group-btn" class="btn">Nouveau groupe</button>
       </div>
 
+      <!-- Popup création MP -->
+<div id="popup-mp" class="popup" style="display:none;">
+  <div class="popup-inner">
+    <h3>Nouveau message privé</h3>
+    <input id="mp-search" type="text" placeholder="Tape un nom...">
+    <div id="mp-results"></div>
+    <button id="close-mp" class="btn">Fermer</button>
+  </div>
+</div>
+
+<!-- Popup création groupe -->
+<div id="popup-group" class="popup" style="display:none;">
+  <div class="popup-inner">
+    <h3>Nouveau groupe</h3>
+
+    <input id="group-name-input" type="text" placeholder="Nom du groupe">
+
+    <h4>Membres :</h4>
+    <div id="group-selected" style="margin-bottom:10px;"></div>
+
+    <input id="group-search" type="text" placeholder="Tape un nom...">
+    <div id="group-results"></div>
+
+    <button id="create-group-final" class="btn btn-primary">Créer le groupe</button>
+    <button id="close-group" class="btn">Fermer</button>
+  </div>
+</div>
+
+
       <div style="padding:0 10px 8px;">
         <input id="new-member-id" type="text" placeholder="UID de l'autre utilisateur" style="width:100%; margin-bottom:6px; padding:8px; border-radius:10px; border:1px solid var(--border-subtle); background:var(--bg-input); color:var(--text-main);">
         <input id="group-name" type="text" placeholder="Nom du groupe" style="width:100%; margin-bottom:6px; padding:8px; border-radius:10px; border:1px solid var(--border-subtle); background:var(--bg-input); color:var(--text-main);">
