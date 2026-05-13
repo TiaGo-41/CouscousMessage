@@ -1,51 +1,70 @@
-// auth.js
+// ---------------------------------------------------------
+//  AUTH.JS — Gestion de l'inscription et connexion
+//  Version commentée et corrigée
+// ---------------------------------------------------------
 
-// Si déjà connecté → on va direct sur la liste des conversations
-auth.onAuthStateChanged(user => {
-  if (user) {
-    window.location.href = "conversations.html";
-  }
-});
+// ---------------------------------------------------------
+// 1. INSCRIPTION D'UN NOUVEL UTILISATEUR
+// ---------------------------------------------------------
+document.getElementById("signup-btn").onclick = async () => {
 
-// Inscription
-document.getElementById('signup-btn').onclick = async () => {
-  const email = document.getElementById('signup-email').value.trim();
-  const password = document.getElementById('signup-password').value.trim();
-  const name = document.getElementById('signup-name').value.trim();
-  const color = document.getElementById('signup-color').value;
+    // Récupération des champs du formulaire
+    const email = document.getElementById("signup-email").value;
+    const password = document.getElementById("signup-password").value;
+    const name = document.getElementById("signup-name").value;
+    const color = document.getElementById("signup-color").value;
 
-  if (!email || !password || !name) {
-    alert("Remplis tous les champs d'inscription.");
-    return;
-  }
+    // Vérification basique
+    if (!email || !password || !name) {
+        alert("Merci de remplir tous les champs !");
+        return;
+    }
 
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, password);
-    await db.collection('users').doc(cred.user.uid).set({
-      name,
-      color,
-      hiddenGroups: []
-    });
-  } catch (e) {
-    console.error(e);
-    alert("Erreur inscription : " + e.message);
-  }
+    try {
+        // Création du compte Firebase Auth
+        const userCred = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCred.user;
+
+        // ---------------------------------------------------------
+        // IMPORTANT :
+        // On crée un document Firestore pour l'utilisateur
+        // avec les champs nécessaires au fonctionnement du chat :
+        // - name : surnom
+        // - color : couleur du pseudo
+        // - email : pour info
+        // - hiddenGroups : liste des groupes cachés
+        // ---------------------------------------------------------
+        await db.collection("users").doc(user.uid).set({
+            name: name,
+            color: color,
+            email: email,
+            hiddenGroups: []
+        });
+
+        alert("Compte créé avec succès !");
+        window.location.href = "conversations.html";
+
+    } catch (error) {
+        alert("Erreur : " + error.message);
+    }
 };
 
-// Connexion
-document.getElementById('login-btn').onclick = async () => {
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value.trim();
+// ---------------------------------------------------------
+// 2. CONNEXION D'UN UTILISATEUR EXISTANT
+// ---------------------------------------------------------
+document.getElementById("login-btn").onclick = async () => {
 
-  if (!email || !password) {
-    alert("Remplis email et mot de passe.");
-    return;
-  }
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
 
-  try {
-    await auth.signInWithEmailAndPassword(email, password);
-  } catch (e) {
-    console.error(e);
-    alert("Erreur connexion : " + e.message);
-  }
+    try {
+        // Connexion Firebase Auth
+        await auth.signInWithEmailAndPassword(email, password);
+
+        // Redirection vers la liste des conversations
+        window.location.href = "conversations.html";
+
+    } catch (error) {
+        alert("Erreur : " + error.message);
+    }
 };
