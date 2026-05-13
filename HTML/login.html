@@ -1,40 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://tiago-41.github.io/CouscousMessage/CSS/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CouscousMessage - Connexion</title>
+  <link rel="stylesheet" href="/CSS/style.css">
 </head>
 <body>
-  <h1>Messagerie</h1>
+  <div class="app">
+    <div class="login-page">
+      <div class="login-card">
+        <h1>CouscousMessage</h1>
+        <p>Connecte-toi ou crée ton compte pour discuter.</p>
 
-  <div>
-    <h2>Connexion</h2>
-    <input id="login-email" type="email" placeholder="Email">
-    <input id="login-password" type="password" placeholder="Mot de passe">
-    <button id="login-btn">Se connecter</button>
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" placeholder="Email">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Mot de passe</label>
+          <input id="login-password" type="password" placeholder="Mot de passe">
+        </div>
+        <div class="form-actions">
+          <button id="login-btn" class="btn btn-primary btn-full">Se connecter</button>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--border-subtle); margin:16px 0;">
+
+        <div class="form-group">
+          <label for="signup-email">Email</label>
+          <input id="signup-email" type="email" placeholder="Email">
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Mot de passe</label>
+          <input id="signup-password" type="password" placeholder="Mot de passe">
+        </div>
+        <div class="form-group">
+          <label for="signup-name">Surnom</label>
+          <input id="signup-name" type="text" placeholder="Surnom">
+        </div>
+        <div class="form-group">
+          <label for="signup-color">Couleur</label>
+          <input id="signup-color" type="color" value="#00ffcc">
+        </div>
+        <div class="form-actions">
+          <button id="signup-btn" class="btn btn-full">Créer un compte</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <h2>Inscription</h2>
-    <input id="signup-email" type="email" placeholder="Email">
-    <input id="signup-password" type="password" placeholder="Mot de passe">
-    <input id="signup-name" type="text" placeholder="Surnom">
-    <input id="signup-color" type="color" value="#00ffcc">
-    <button id="signup-btn">Créer un compte</button>
-  </div>
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="../JS/firebase-config.js"></script>
-<script src="../JS/auth.js"></script>
-<script>
-  console.log("Firebase App:", firebase);
-  console.log("Auth:", firebase.auth());
-  console.log("Firestore:", firebase.firestore());
-</script>
-
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="../JS/firebase-config.js"></script>
+  <script src="../JS/auth.js"></script>
 </body>
 </html>

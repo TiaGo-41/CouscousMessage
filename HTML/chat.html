@@ -1,45 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Discussion</title>
+  <title>CouscousMessage - Discussion</title>
   <link rel="stylesheet" href="/CSS/style.css">
 </head>
 <body>
-  <button id="back-btn">← Retour</button>
-  <h1 id="conv-title">Discussion</h1>
+  <div class="app">
+    <header class="app-header">
+      <button id="back-btn" class="icon-btn" title="Retour">←</button>
+      <div class="app-header-avatar" id="conv-avatar">G</div>
+      <div class="app-header-title">
+        <h1 id="conv-title">Discussion</h1>
+        <span id="conv-subtitle">Groupe ou MP</span>
+      </div>
+      <div class="app-header-actions">
+        <button id="edit-group-name-btn" class="icon-btn" title="Renommer le groupe">✏️</button>
+        <button id="edit-nickname-btn" class="icon-btn" title="Changer ton surnom">👤</button>
+        <button id="add-member-btn" class="icon-btn" title="Ajouter un membre">➕</button>
+        <button id="hide-btn" class="icon-btn" title="Cacher pour quelqu'un">🙈</button>
+        <button id="unhide-btn" class="icon-btn" title="Décacher">👁️</button>
+      </div>
+    </header>
 
-  <button id="edit-group-name-btn">Renommer le groupe</button>
-  <button id="edit-nickname-btn">Changer surnom dans ce groupe</button>
-  <button id="hide-btn">Cacher pour quelqu'un</button>
-  <button id="unhide-btn">Décacher pour quelqu'un</button>
-  <!-- nouveau bouton -->
-  <button id="add-member-btn">Ajouter un membre</button>
+    <main class="chat-page">
+      <div id="messages"></div>
 
-  <div id="messages"></div>
+      <div id="input-zone">
+        <input id="msg-input" type="text" placeholder="Message">
+        <button id="send-btn">Envoyer</button>
+      </div>
+    </main>
 
-  <div id="input-zone">
-    <input id="msg-input" type="text" placeholder="Message">
-    <button id="send-btn">Envoyer</button>
-  </div>
-
-  <!-- Popup ajout membre -->
-  <div id="add-member-popup" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border:1px solid #ccc; max-width:300px;">
-    <h3>Ajouter un membre</h3>
-    <input id="member-search" type="text" placeholder="Tape un nom..." style="width:100%; box-sizing:border-box;">
-    <div id="member-results" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
-    <button id="close-add-member-popup">Fermer</button>
+    <!-- Popup ajout membre -->
+    <div id="add-member-popup">
+      <div class="popup-inner">
+        <h3>Ajouter un membre</h3>
+        <input id="member-search" type="text" placeholder="Tape un nom...">
+        <div id="member-results"></div>
+        <div style="margin-top:10px; text-align:right;">
+          <button id="close-add-member-popup" class="btn">Fermer</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
   <!-- Config Firebase -->
   <script src="../JS/firebase-config.js"></script>
-
   <!-- Logique chat -->
   <script src="../JS/chat.js"></script>
 </body>

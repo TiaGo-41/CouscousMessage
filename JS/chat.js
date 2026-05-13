@@ -39,10 +39,18 @@ function initChat() {
     if (!conversationData) return;
 
     const titleEl = document.getElementById('conv-title');
+    const subtitleEl = document.getElementById('conv-subtitle');
+    const avatarEl = document.getElementById('conv-avatar');
+
     if (conversationData.type === 'group') {
-      titleEl.textContent = conversationData.groupName || "Groupe";
+      const name = conversationData.groupName || "Groupe";
+      titleEl.textContent = name;
+      subtitleEl.textContent = "Groupe";
+      avatarEl.textContent = name.charAt(0).toUpperCase();
     } else {
       titleEl.textContent = "MP";
+      subtitleEl.textContent = "Message privé";
+      avatarEl.textContent = "MP";
     }
   });
 
@@ -60,27 +68,43 @@ function initChat() {
 
         const line = document.createElement('div');
         line.className = 'message-line';
+        if (msg.author === currentUser.uid) line.classList.add('me');
 
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = pseudo + " : ";
-        nameSpan.style.color = color;
+        // swipe reply (mobile)
+        let startX = null;
+        line.addEventListener('touchstart', e => {
+          startX = e.touches[0].clientX;
+        });
+        line.addEventListener('touchend', e => {
+          if (startX === null) return;
+          const endX = e.changedTouches[0].clientX;
+          if (startX - endX > 60) {
+            const input = document.getElementById('msg-input');
+            input.value = `@${pseudo} ` + input.value;
+            input.focus();
+          }
+          startX = null;
+        });
+
+        const authorSpan = document.createElement('span');
+        authorSpan.className = 'message-author';
+        authorSpan.textContent = pseudo;
+        authorSpan.style.color = color;
 
         const textSpan = document.createElement('span');
+        textSpan.className = 'message-text';
         textSpan.textContent = msg.text || '';
 
-        // date
         let dateText = '';
         if (msg.timestamp) {
           const d = msg.timestamp.toDate ? msg.timestamp.toDate() : new Date(msg.timestamp);
           dateText = d.toLocaleString('fr-FR');
         }
         const dateSpan = document.createElement('span');
-        dateSpan.style.display = 'block';
-        dateSpan.style.fontSize = '12px';
-        dateSpan.style.opacity = '0.7';
+        dateSpan.className = 'message-date';
         dateSpan.textContent = dateText;
 
-        line.appendChild(nameSpan);
+        line.appendChild(authorSpan);
         line.appendChild(textSpan);
         line.appendChild(dateSpan);
 
@@ -107,8 +131,12 @@ function getDisplayName(userData, uid) {
 
 async function sendMessage() {
   const input = document.getElementById('msg-input');
+  const btn = document.getElementById('send-btn');
   const text = input.value.trim();
   if (!text) return;
+
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
 
   await db.collection('conversations')
     .doc(conversationId)
@@ -120,6 +148,8 @@ async function sendMessage() {
     });
 
   input.value = '';
+  btn.disabled = false;
+  btn.style.opacity = '1';
 }
 
 // --- Surnom personnalisé ---
@@ -195,7 +225,6 @@ async function unhideForUser() {
 }
 
 // --- Ajout de membre dans un groupe existant ---
-
 function openAddMemberPopup() {
   if (!conversationData || conversationData.type !== 'group') {
     alert("Tu peux ajouter des membres seulement dans un groupe.");
@@ -203,7 +232,7 @@ function openAddMemberPopup() {
   }
   document.getElementById('member-search').value = '';
   document.getElementById('member-results').innerHTML = '';
-  document.getElementById('add-member-popup').style.display = 'block';
+  document.getElementById('add-member-popup').style.display = 'flex';
 }
 
 function closeAddMemberPopup() {
@@ -224,14 +253,11 @@ async function onMemberSearchInput(e) {
     const name = (data.name || '').toLowerCase();
 
     if (name.includes(search)) {
-      // déjà membre ?
       if ((conversationData.members || []).includes(doc.id)) return;
 
       const btn = document.createElement('button');
       btn.textContent = data.name;
       btn.style.display = 'block';
-      btn.style.width = '100%';
-      btn.style.textAlign = 'left';
       btn.onclick = () => addMemberToGroup(doc.id, data.name);
       resultsDiv.appendChild(btn);
     }
