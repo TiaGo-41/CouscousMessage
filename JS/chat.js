@@ -27,6 +27,11 @@ function initChat() {
   document.getElementById('hide-btn').onclick = hideForUser;
   document.getElementById('unhide-btn').onclick = unhideForUser;
 
+  // ajout membre
+  document.getElementById('add-member-btn').onclick = openAddMemberPopup;
+  document.getElementById('close-add-member-popup').onclick = closeAddMemberPopup;
+  document.getElementById('member-search').addEventListener('input', onMemberSearchInput);
+
   const convRef = db.collection('conversations').doc(conversationId);
 
   convRef.onSnapshot(doc => {
@@ -57,14 +62,27 @@ function initChat() {
         line.className = 'message-line';
 
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = pseudo + ": ";
+        nameSpan.textContent = pseudo + " : ";
         nameSpan.style.color = color;
 
         const textSpan = document.createElement('span');
         textSpan.textContent = msg.text || '';
 
+        // date
+        let dateText = '';
+        if (msg.timestamp) {
+          const d = msg.timestamp.toDate ? msg.timestamp.toDate() : new Date(msg.timestamp);
+          dateText = d.toLocaleString('fr-FR');
+        }
+        const dateSpan = document.createElement('span');
+        dateSpan.style.display = 'block';
+        dateSpan.style.fontSize = '12px';
+        dateSpan.style.opacity = '0.7';
+        dateSpan.textContent = dateText;
+
         line.appendChild(nameSpan);
         line.appendChild(textSpan);
+        line.appendChild(dateSpan);
 
         container.appendChild(line);
       }
@@ -115,7 +133,6 @@ async function editNickname() {
   if (!newName) return;
 
   const convRef = db.collection("conversations").doc(conversationId);
-
   await convRef.update({
     [`customNames.${currentUser.uid}`]: newName
   });
@@ -175,4 +192,57 @@ async function unhideForUser() {
   });
 
   alert("Décaché. La conversation réapparaîtra pour cette personne dans ~20 secondes.");
+}
+
+// --- Ajout de membre dans un groupe existant ---
+
+function openAddMemberPopup() {
+  if (!conversationData || conversationData.type !== 'group') {
+    alert("Tu peux ajouter des membres seulement dans un groupe.");
+    return;
+  }
+  document.getElementById('member-search').value = '';
+  document.getElementById('member-results').innerHTML = '';
+  document.getElementById('add-member-popup').style.display = 'block';
+}
+
+function closeAddMemberPopup() {
+  document.getElementById('add-member-popup').style.display = 'none';
+}
+
+async function onMemberSearchInput(e) {
+  const search = e.target.value.toLowerCase();
+  const resultsDiv = document.getElementById('member-results');
+  resultsDiv.innerHTML = '';
+
+  if (search.length < 1) return;
+
+  const snap = await db.collection('users').get();
+
+  snap.forEach(doc => {
+    const data = doc.data();
+    const name = (data.name || '').toLowerCase();
+
+    if (name.includes(search)) {
+      // déjà membre ?
+      if ((conversationData.members || []).includes(doc.id)) return;
+
+      const btn = document.createElement('button');
+      btn.textContent = data.name;
+      btn.style.display = 'block';
+      btn.style.width = '100%';
+      btn.style.textAlign = 'left';
+      btn.onclick = () => addMemberToGroup(doc.id, data.name);
+      resultsDiv.appendChild(btn);
+    }
+  });
+}
+
+async function addMemberToGroup(uid, name) {
+  await db.collection('conversations').doc(conversationId).update({
+    members: firebase.firestore.FieldValue.arrayUnion(uid)
+  });
+
+  alert(`Membre ajouté : ${name}`);
+  closeAddMemberPopup();
 }
