@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/CSS/style.css">
+</head>
+<body>
+  <h1>Messagerie</h1>
+
+  <div>
+    <h2>Connexion</h2>
+    <input id="login-email" type="email" placeholder="Email">
+    <input id="login-password" type="password" placeholder="Mot de passe">
+    <button id="login-btn">Se connecter</button>
+  </div>
+
+  <div>
+    <h2>Inscription</h2>
+    <input id="signup-email" type="email" placeholder="Email">
+    <input id="signup-password" type="password" placeholder="Mot de passe">
+    <input id="signup-name" type="text" placeholder="Surnom">
+    <input id="signup-color" type="color" value="#00ffcc">
+    <button id="signup-btn">Créer un compte</button>
+  </div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="/JS/firebase-config.js"></script>
+<script src="/JS/auth.js"></script>
+<script>
+  console.log("Firebase App:", firebase);
+  console.log("Auth:", firebase.auth());
+  console.log("Firestore:", firebase.firestore());
+</script>
+
+</body>
+</html>

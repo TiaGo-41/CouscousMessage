@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/CSS/style.css">
+</head>
+<body>
+ <button id="back-btn">← Retour</button>
+  <h1 id="conv-title">Discussion</h1>
+
+  <button id="edit-group-name-btn">Renommer le groupe</button>
+  <button id="edit-nickname-btn">Changer surnom dans ce groupe</button>
+  <button id="hide-btn">Cacher pour quelqu'un</button>
+  <button id="unhide-btn">Décacher pour quelqu'un</button>
+
+  <div id="messages"></div>
+
+  <div id="input-zone">
+    <input id="msg-input" type="text" placeholder="Message">
+    <button id="send-btn">Envoyer</button>
+  </div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- Config Firebase -->
+<script src="../JS/firebase-config.js"></script>
+
+<!-- Logique chat -->
+<script src="../JS/chat.js"></script>
+</body>
+</html>

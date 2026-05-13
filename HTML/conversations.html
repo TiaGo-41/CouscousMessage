@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/CSS/style.css">
+</head>
+<body>
+
+  <h1>Conversations</h1>
+  <button id="logout-btn">Déconnexion</button>
+
+  <h2>Créer un MP</h2>
+  <input id="new-member-id" type="text" placeholder="ID de l'autre utilisateur">
+  <button id="new-mp-btn">Créer un MP</button>
+
+  <h2>Créer un groupe</h2>
+  <input id="group-name" type="text" placeholder="Nom du groupe">
+  <input id="group-members" type="text" placeholder="UID des membres séparés par des virgules">
+  <button id="create-group-btn">Créer le groupe</button>
+<button onclick="createTempGroup()">Créer un groupe (temporaire)</button>
+
+  <h2>Mes conversations</h2>
+  <div id="conversations-list"></div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<!-- Config Firebase -->
+<script src="../JS/firebase-config.js"></script>
+
+<!-- Script temporaire (si tu l’utilises encore) -->
+<script>
+  async function createTempGroup() {
+    const name = prompt("Nom du groupe :");
+    if (!name) return;
+
+    const convRef = await db.collection('conversations').add({
+      type: "group",
+      members: [auth.currentUser.uid],
+      groupName: name,
+      customNames: {},
+      hiddenFor: []
+    });
+
+    alert("Groupe créé !");
+    window.location.href = `chat.html?id=${convRef.id}`;
+  }
+</script>
+
+<!-- Logique conversations -->
+<script src="../JS/conversations.js"></script>
+</body>
+</html>
