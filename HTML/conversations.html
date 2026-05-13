@@ -9,20 +9,20 @@
 <body>
   <div class="app">
     <header class="app-header">
-      <div class="app-header-avatar">CM</div>
+      <div class="app-header-avatar">KK</div>
       <div class="app-header-title">
         <h1>Conversations</h1>
         <span>Choisis une discussion ou crée-en une</span>
       </div>
       <div class="app-header-actions">
-        <button id="logout-btn" class="icon-btn" title="Déconnexion">⏏</button>
+        <button id="logout-btn" class="icon-btn" title="Déconnexion">❌</button>
       </div>
     </header>
 
     <main class="conversations-page">
       <div class="conversations-header-actions">
-        <button id="new-mp-btn" class="btn btn-primary">Nouveau MP</button>
-        <button id="create-group-btn" class="btn">Nouveau groupe</button>
+        <button id="new-mp-btn" class="btn btn-mp">Nouveau MP</button>
+        <button id="create-group-btn" class="btn create-group-btn">Nouveau groupe</button>
       </div>
 
       <!-- Popup création MP -->
@@ -52,14 +52,6 @@
     <button id="close-group" class="btn">Fermer</button>
   </div>
 </div>
-
-
-      <div style="padding:0 10px 8px;">
-        <input id="new-member-id" type="text" placeholder="UID de l'autre utilisateur" style="width:100%; margin-bottom:6px; padding:8px; border-radius:10px; border:1px solid var(--border-subtle); background:var(--bg-input); color:var(--text-main);">
-        <input id="group-name" type="text" placeholder="Nom du groupe" style="width:100%; margin-bottom:6px; padding:8px; border-radius:10px; border:1px solid var(--border-subtle); background:var(--bg-input); color:var(--text-main);">
-        <input id="group-members" type="text" placeholder="UID des membres séparés par des virgules" style="width:100%; padding:8px; border-radius:10px; border:1px solid var(--border-subtle); background:var(--bg-input); color:var(--text-main);">
-      </div>
-
       <div class="conversations-list" id="conversations-list"></div>
     </main>
   </div>
