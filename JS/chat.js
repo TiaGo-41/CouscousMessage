@@ -21,11 +21,23 @@ function initChat() {
     window.location.href = "conversations.html";
   };
 
-  document.getElementById('send-btn').onclick = sendMessage;
-  document.getElementById('edit-nickname-btn').onclick = editNickname;
-  document.getElementById('edit-group-name-btn').onclick = editGroupName;
-  document.getElementById('hide-btn').onclick = hideForUser;
-  document.getElementById('unhide-btn').onclick = unhideForUser;
+const safe = id => document.getElementById(id);
+
+safe('back-btn')?.addEventListener('click', () => {
+  window.location.href = "conversations.html";
+});
+
+safe('send-btn')?.addEventListener('click', sendMessage);
+safe('edit-nickname-btn')?.addEventListener('click', editNickname);
+safe('edit-group-name-btn')?.addEventListener('click', editGroupName);
+safe('hide-btn')?.addEventListener('click', hideForUser);
+safe('unhide-btn')?.addEventListener('click', unhideForUser);
+
+safe('add-member-btn')?.addEventListener('click', openAddMemberPopup);
+safe('close-add-member-popup')?.addEventListener('click', closeAddMemberPopup);
+
+safe('member-search')?.addEventListener('input', onMemberSearchInput);
+
 
   // ajout membre
   document.getElementById('add-member-btn').onclick = openAddMemberPopup;
